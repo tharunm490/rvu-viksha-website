@@ -13,7 +13,7 @@ export default function Home() {
       <div className="animate-in fade-in duration-1000">
         <Hero />
 
-        <section className="px-4 lg:px-8 pt-0 pb-16">
+        <section className="px-4 lg:px-8 pt-24 md:pt-0 pb-16">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <div className="pl-10 md:pl-20">
               <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-white">

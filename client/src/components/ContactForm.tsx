@@ -125,17 +125,17 @@ export default function ContactForm() {
 
     return (
         <div className="relative bg-[#0a0a0a] p-5 sm:p-6 mx-auto max-w-2xl rounded-3xl border border-white/10 shadow-2xl">
-            <div className="relative z-10 flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-white/10 gap-4">
                 <h3 className="text-lg font-bold text-white tracking-widest uppercase">Contact Us</h3>
-                <div className="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+                <div className="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 max-w-full overflow-hidden">
                     {user.picture ? (
-                        <img src={user.picture} alt="" className="w-8 h-8 rounded-full ring-1 ring-white/20" />
+                        <img src={user.picture} alt="" className="w-8 h-8 rounded-full ring-1 ring-white/20 shrink-0" />
                     ) : (
-                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0">
                             {user.given_name?.[0]}
                         </div>
                     )}
-                    <span className="text-sm text-white font-mono">{user.email}</span>
+                    <span className="text-sm text-white font-mono truncate">{user.email}</span>
                 </div>
             </div>
 
