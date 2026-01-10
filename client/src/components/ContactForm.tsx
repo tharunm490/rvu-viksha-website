@@ -147,7 +147,7 @@ export default function ContactForm() {
                             id="firstName"
                             {...register("firstName", { required: "Required" })}
                             className="bg-transparent border-white rounded-xl text-white focus:ring-1 focus:ring-white h-12 px-4"
-                            placeholder="John"
+                            placeholder="FirstName"
                         />
                     </div>
                     <div className="space-y-2">
@@ -156,7 +156,7 @@ export default function ContactForm() {
                             id="lastName"
                             {...register("lastName", { required: "Required" })}
                             className="bg-transparent border-white rounded-xl text-white focus:ring-1 focus:ring-white h-12 px-4"
-                            placeholder="Doe"
+                            placeholder="LastName"
                         />
                     </div>
                 </div>

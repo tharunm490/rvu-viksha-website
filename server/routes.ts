@@ -13,38 +13,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { googleToken, recaptchaToken, ...formData } = req.body;
 
-      // Security Checks (Logging failures but not blocking as per user request to "just save the msg")
+      // Security Checks
       const isRecaptchaValid = await verifyRecaptchaToken(recaptchaToken);
       if (!isRecaptchaValid) {
-        console.warn("Recaptcha verification failed, continuing anyway...");
+        return res.status(400).json({ message: "Invalid Recaptcha." });
       }
 
-      let googleUser = await verifyGoogleToken(googleToken);
-      if (!googleUser) {
-        console.warn("Google Auth verification failed, using email from form data...");
-        // Fallback for user identification if verification fails
-        googleUser = {
-          email: formData.email,
-          sub: req.body.googleToken?.substring(0, 50) || "unknown_user"
-        } as any;
+      const googleUser = await verifyGoogleToken(googleToken);
+      if (!googleUser || !googleUser.email || !googleUser.sub) {
+        return res.status(401).json({ message: "Invalid Authentication." });
       }
 
-      // Rate Limiting (Still apply to prevent spam)
+      // Rate Limiting
       const recentMessages = await storage.getContactMessages();
       const userRecentMessages = recentMessages.filter(msg =>
-        msg.googleUserId === googleUser?.sub &&
+        msg.googleUserId === googleUser.sub &&
         new Date().getTime() - new Date(msg.createdAt).getTime() < 24 * 60 * 60 * 1000
       );
 
-      if (userRecentMessages.length >= 10) {
+      if (userRecentMessages.length >= 30) {
         return res.status(429).json({ message: "Daily limit reached." });
       }
 
       // Process and Store
       const validatedData = insertContactMessageSchema.parse({
         ...formData,
-        email: googleUser!.email,
-        googleUserId: googleUser!.sub,
+        email: googleUser.email,
+        googleUserId: googleUser.sub,
       });
 
       const contactMessage = await storage.createContactMessage(validatedData);

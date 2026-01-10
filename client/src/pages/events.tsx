@@ -204,10 +204,10 @@ export default function Events() {
 
         {/* Modal */}
         {selectedEvent && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4">
-            <div className="relative bg-gray-900 rounded-2xl max-w-2xl sm:max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl animate-in fade-in duration-500">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="relative bg-gray-900 rounded-2xl max-w-2xl sm:max-w-3xl w-full my-8 shadow-xl animate-in fade-in duration-500">
               <button
-                className="absolute top-4 right-4 text-white hover:text-red-400 transition"
+                className="absolute top-4 right-4 text-white hover:text-red-400 transition z-10"
                 onClick={() => setSelectedEvent(null)}
               >
                 <X size={28} />
