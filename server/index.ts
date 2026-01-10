@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -6,6 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -24,11 +26,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
+      if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
       log(logLine);
     }
   });
@@ -36,6 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Initialize express app, register routes, and start the server
 (async () => {
   const server = await registerRoutes(app);
 
@@ -46,25 +45,21 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5001', 10);
-  
-  // Use localhost for better Windows/Git Bash compatibility
   const host = process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0';
-  
-  server.listen(port, host, () => {
-    log(`serving on http://${host}:${port}`);
-  });
+
+  // Only start the server if not in a serverless environment
+  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    server.listen(port, host, () => {
+      log(`Serving on http://${host}:${port}`);
+    });
+  }
 })();
+
+export default app;

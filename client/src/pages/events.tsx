@@ -2,18 +2,7 @@ import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Users, X } from "lucide-react";
-
-type EventType = {
-  title: string;
-  description: string;
-  date: string;
-  time?: string;
-  location?: string;
-  participants: string;
-  type: string;
-  image: string;
-  featured?: boolean;
-};
+import { pastEvents, upcomingEvents, EventType } from "@/data/events";
 
 // Custom hook for typing effect
 function useTypingEffect(texts: string[], speed = 80, delay = 2000) {
@@ -64,14 +53,12 @@ function useTypingEffect(texts: string[], speed = 80, delay = 2000) {
 
 export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
-  const [view, setView] = useState("upcoming");
+  const [view, setView] = useState("past");
   const [filter, setFilter] = useState("All");
 
   const typingText = useTypingEffect([
-  `🚀 Exciting events are on the way!
-💡 Stay tuned for workshops & hackathons.
-✨ We'll be announcing soon...`
-]);
+    `🚀 Exciting events are on the way!\nStay tuned for workshops & hackathons.\nWe'll be announcing soon...`
+  ]);
 
   function calculateRemaining(dateString: string) {
     const eventDate = new Date(dateString);
@@ -82,57 +69,6 @@ export default function Events() {
     return `${days}d remaining`;
   }
 
-  function addToGoogleCalendar(event: EventType) {
-    const start = new Date(event.date);
-    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
-
-    function formatDate(d: Date) {
-      return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-    }
-
-    const url = new URL("https://calendar.google.com/calendar/render");
-    url.searchParams.set("action", "TEMPLATE");
-    url.searchParams.set("text", event.title);
-    url.searchParams.set("details", event.description);
-    url.searchParams.set("dates", `${formatDate(start)}/${formatDate(end)}`);
-    if (event.location) url.searchParams.set("location", event.location);
-
-    window.open(url.toString(), "_blank");
-  }
-
-  // empty upcoming events
-  const upcomingEvents: EventType[] = [];
-
-  const pastEvents = [
-    {
-      title: "RVU Santhe",
-      description:
-        "Viksha Coding Club set up an interactive stall at Santhe’25, RV University’s annual fest, to showcase the fun and creativity behind coding.",
-      date: "2025-07-29T10:00:00",
-      participants: "200+",
-      type: "Competition",
-      image: "/assets/p1.png",
-    },
-    {
-      title: "Python Workshop",
-      description:
-        "Viksha Coding Club organized a hands-on Python workshop aimed at helping students dive into programming basics.",
-      date: "2024-12-01T10:00:00",
-      participants: "120",
-      type: "Workshop",
-      image: "/assets/p2.png",
-    },
-    {
-      title: "Annual Hackathon 2024",
-      description:
-        "Argonyx’25 Hackathon was the flagship 24-hour coding challenge with 244 teams from 69 institutions.",
-      date: "2024-11-18T10:00:00",
-      participants: "244 teams",
-      type: "Hackathons",
-      image: "/assets/p4.png",
-    },
-  ];
-
   const displayedEvents = view === "upcoming" ? upcomingEvents : pastEvents;
 
   return (
@@ -142,7 +78,7 @@ export default function Events() {
       <div className="animate-in fade-in duration-1000">
         {/* Header */}
         <section className="px-7 lg:px-8 py-10 text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white-500 bg-clip-text  mb-6">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-semibold text-white mb-6">
             Events & Activities
           </h1>
           <p className="text-gray-300 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
@@ -153,24 +89,22 @@ export default function Events() {
         {/* Toggle Buttons */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 px-4">
           <Button
-            onClick={() => setView("upcoming")}
-            className={`px-6 py-2 rounded-full ${
-              view === "upcoming"
-                ? "bg-cyan-600 text-white"
-                : "bg-white/10 text-cyan-300 hover:bg-cyan-500/20"
-            }`}
-          >
-            Upcoming Events
-          </Button>
-          <Button
             onClick={() => setView("past")}
-            className={`px-6 py-2 rounded-full ${
-              view === "past"
-                ? "bg-cyan-600 text-white"
-                : "bg-white/10 text-cyan-300 hover:bg-cyan-500/20"
-            }`}
+            className={`px-6 py-2 rounded-full ${view === "past"
+              ? "bg-cyan-600 text-white"
+              : "bg-white/10 text-cyan-300 hover:bg-cyan-500/20"
+              }`}
           >
             Past Events
+          </Button>
+          <Button
+            onClick={() => setView("upcoming")}
+            className={`px-6 py-2 rounded-full ${view === "upcoming"
+              ? "bg-cyan-600 text-white"
+              : "bg-white/10 text-cyan-300 hover:bg-cyan-500/20"
+              }`}
+          >
+            Upcoming Events
           </Button>
         </div>
 
@@ -181,11 +115,10 @@ export default function Events() {
               <Button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-4 py-1 rounded-full text-sm sm:text-base ${
-                  filter === tab
-                    ? "bg-cyan-500 text-white"
-                    : "bg-white/10 text-gray-300 hover:bg-purple-500/20"
-                }`}
+                className={`px-4 py-1 rounded-full text-sm sm:text-base ${filter === tab
+                  ? "bg-cyan-500 text-white"
+                  : "bg-white/10 text-gray-300 hover:bg-purple-500/20"
+                  }`}
               >
                 {tab}
               </Button>
@@ -197,24 +130,23 @@ export default function Events() {
         <section className="px-4 lg:px-8 pb-16 text-center">
           {view === "upcoming" && upcomingEvents.length === 0 ? (
             <div
-  className="text-lg sm:text-xl font-semibold text-cyan-400"
-  style={{ whiteSpace: "pre-line" }}
->
-  {typingText}
-</div>
+              className="text-lg sm:text-xl font-semibold text-white"
+              style={{ whiteSpace: "pre-line" }}
+            >
+              {typingText}
+            </div>
           ) : (
             <div
-              className={`max-w-7xl mx-auto grid gap-8 ${
-                displayedEvents.filter(
+              className={`max-w-7xl mx-auto grid gap-8 ${displayedEvents.filter(
+                (e) => filter === "All" || e.type === filter
+              ).length === 1
+                ? "grid-cols-1 place-items-center"
+                : displayedEvents.filter(
                   (e) => filter === "All" || e.type === filter
-                ).length === 1
-                  ? "grid-cols-1 place-items-center"
-                  : displayedEvents.filter(
-                      (e) => filter === "All" || e.type === filter
-                    ).length === 2
+                ).length === 2
                   ? "grid-cols-1 sm:grid-cols-2 place-items-center"
                   : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              }`}
+                }`}
             >
               {displayedEvents
                 .filter((e) => filter === "All" || e.type === filter)
@@ -222,10 +154,9 @@ export default function Events() {
                   <div
                     key={index}
                     className="group relative rounded-3xl overflow-hidden 
-             backdrop-blur-xl bg-gradient-to-br from-[#0f172a]/80 to-[#1e293b]/70 
-             border border-white/10 hover:scale-105 transition-all duration-500 
-             shadow-[0_8px_30px_rgba(0,200,255,0.3)] cursor-pointer
-             max-w-md w-full mx-auto"
+                                         backdrop-blur-xl bg-gradient-to-br from-[#050a15]/90 to-[#0a1324]/80 
+                                         border border-white/10 hover:scale-105 transition-all duration-500 
+                                         cursor-pointer max-w-md w-full mx-auto"
                     onClick={() => setSelectedEvent(event)}
                   >
                     <img
@@ -245,23 +176,22 @@ export default function Events() {
                         {event.title}
                       </h3>
                       <p className="text-gray-400 text-sm mb-4 line-clamp-3">
-                        {event.description}
+                        {event.shortDescription || event.description}
                       </p>
-                      <div className="flex items-center text-gray-400 text-sm mb-4">
-                        <Calendar className="mr-2 text-cyan-400" size={14} />
-                        <span>{new Date(event.date).toDateString()}</span>
+                      <div className="flex items-center justify-between text-gray-400 text-sm mb-4">
+                        <div className="flex items-center">
+                          <Calendar className="mr-2 text-cyan-400" size={14} />
+                          <span>{new Date(event.date).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        {event.participants && (
+                          <div className="flex items-center">
+                            <Users className="mr-2 text-cyan-400" size={14} />
+                            <span>{event.participants}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex justify-between gap-3">
-                        <Button
-                          className="flex-1 bg-cyan-600 text-white hover:bg-cyan-700 transition"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addToGoogleCalendar(event);
-                          }}
-                        >
-                          Add to Calendar
-                        </Button>
-                        <Button className="flex-1 bg-white/10 text-cyan-300 hover:bg-cyan-500/20 transition">
+                        <Button className="w-full bg-white/10 text-cyan-300 hover:bg-cyan-500/20 transition">
                           Learn More
                         </Button>
                       </div>
@@ -298,7 +228,7 @@ export default function Events() {
                   {selectedEvent.date && (
                     <span className="flex items-center gap-2">
                       <Calendar size={16} className="text-cyan-400" />
-                      {new Date(selectedEvent.date).toDateString()}
+                      {new Date(selectedEvent.date).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   )}
                   {selectedEvent.time && (

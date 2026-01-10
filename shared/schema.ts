@@ -16,6 +16,7 @@ export const contactMessages = pgTable("contact_messages", {
   email: text("email").notNull(),
   phoneNumber: text("phone_number"),
   message: text("message").notNull(),
+  googleUserId: text("google_user_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -30,6 +31,7 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).pi
   email: true,
   phoneNumber: true,
   message: true,
+  googleUserId: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

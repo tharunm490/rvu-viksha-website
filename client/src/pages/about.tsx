@@ -2,16 +2,16 @@ import Layout from "@/components/Layout";
 
 export default function About() {
   return (
-    <Layout>
+    <Layout backgroundType="glow">
       <br />
       <br />
       <div className="animate-in fade-in duration-1000">
         {/* Header */}
-        <section className="px-7 lg:px-8 py-10 text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold bg-gradient-to-b from-white via-cyan-200 to-cyan-500 bg-clip-text text-transparent mb-6">
+        <section className="relative px-7 lg:px-8 py-10 text-center">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold bg-gradient-to-b from-white via-white/90 to-cyan-400 bg-clip-text text-transparent mb-6">
             About Us
           </h1>
-          <p className="text-gray-300 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-gray-200 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
             Know more about who we are, our mission, and our vision for the future.
           </p>
         </section>
@@ -22,7 +22,7 @@ export default function About() {
             {/* Who are we? */}
             <div className="rounded-3xl backdrop-blur-xl bg-gradient-to-br from-[#0f172a]/80 to-[#1e293b]/70 
               border border-white/10 shadow-md 
-              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.4)] 
+              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.1)] 
               transition-all duration-500 w-full max-w-md">
               <h3 className="text-2xl sm:text-3xl font-bold text-white-400 mb-6">
                 Who are we?
@@ -37,7 +37,7 @@ export default function About() {
             {/* Our Mission */}
             <div className="rounded-3xl backdrop-blur-xl bg-gradient-to-br from-[#0f172a]/80 to-[#1e293b]/70 
               border border-white/10 shadow-md 
-              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.4)] 
+              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.1)] 
               transition-all duration-500 w-full max-w-md">
               <h3 className="text-2xl sm:text-3xl font-bold text-white-400 mb-6">
                 Our Mission
@@ -52,7 +52,7 @@ export default function About() {
             {/* Our Vision */}
             <div className="rounded-3xl backdrop-blur-xl bg-gradient-to-br from-[#0f172a]/80 to-[#1e293b]/70 
               border border-white/10 shadow-md 
-              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.4)] 
+              p-10 sm:p-12 text-center hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,200,255,0.1)] 
               transition-all duration-500 w-full max-w-md">
               <h3 className="text-2xl sm:text-3xl font-bold text-white-400 mb-6">
                 Our Vision

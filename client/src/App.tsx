@@ -6,18 +6,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 
 import Home from "@/pages/home";
-import Projects from "@/pages/projects";
 import Events from "@/pages/events";
 import Team from "@/pages/team";
 import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
 import Blogs from "@/pages/blogs";
 import About from "@/pages/about";
-
-// animation component
 import IntroAnimation from "@/components/IntroAnimation";
 
-// ✅ ScrollToTop component
+/**
+ * Force window scroll to top on route change
+ */
 function ScrollToTop() {
   const [location] = useLocation();
 
@@ -28,29 +27,34 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Main application router
+ */
 function Router() {
   return (
     <>
-      <ScrollToTop /> {/* this ensures scroll resets on every route change */}
+      <ScrollToTop />
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/projects" component={Projects} />
         <Route path="/events" component={Events} />
         <Route path="/team" component={Team} />
         <Route path="/blogs" component={Blogs} />
         <Route path="/contact" component={Contact} />
         <Route path="/about" component={About} />
-
         <Route component={NotFound} />
       </Switch>
     </>
   );
 }
 
+/**
+ * Root Application component with intro animation logic
+ */
 function App() {
   const [showLoading, setShowLoading] = useState(true);
   const [firstVisit, setFirstVisit] = useState(true);
 
+  // Check session storage to skip intro on repeat visits
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("viksha-visited");
     if (hasVisited) {
@@ -59,6 +63,7 @@ function App() {
     }
   }, []);
 
+  // Handle completion of the intro animation
   const handleLoadingComplete = () => {
     setShowLoading(false);
     sessionStorage.setItem("viksha-visited", "true");
@@ -68,13 +73,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-
-        {/* Show your animation if it's the first visit */}
         {showLoading && firstVisit && (
           <IntroAnimation onComplete={handleLoadingComplete} />
         )}
-
-        {/* Show main site after animation */}
         {(!showLoading || !firstVisit) && <Router />}
       </TooltipProvider>
     </QueryClientProvider>

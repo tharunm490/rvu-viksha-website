@@ -14,7 +14,7 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(263, 70%, 60%);
+  --primary: hsl(199, 89%, 48%);
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
@@ -24,9 +24,8 @@
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
   --radius: 0.75rem;
-
-  
 }
+
 
 @layer base {
   * {
@@ -41,16 +40,16 @@
 }
 
 @layer utilities {
-  .bg-purple-gradient {
-    background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  .bg-cyan-gradient {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
   }
-  
-  .bg-purple-gradient-hover {
-    background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+
+  .bg-cyan-gradient-hover {
+    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
   }
-  
-  .text-purple-gradient {
-    background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+
+  .text-cyan-gradient {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -114,6 +113,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -121,9 +121,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -131,10 +134,11 @@
 
 @keyframes pulseGlow {
   0% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
   }
+
   100% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
   }
 }
 
@@ -142,9 +146,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -154,6 +160,7 @@
   0% {
     width: 0%;
   }
+
   100% {
     width: 100%;
   }
