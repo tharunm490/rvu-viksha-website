@@ -80,7 +80,7 @@ export const pastEvents: EventType[] = [
     {
         title: "Annual Hackathon 2024",
         description:
-            "Argonyx’25 Hackathon was the flagship 24-hour hackathon with 244 teams from different institutions.",
+            "Argonyx’24 Hackathon was the flagship 24-hour hackathon with 244 teams from different institutions.",
         date: "2024-11-18T10:00:00",
         participants: "244 teams",
         type: "Hackathons",
