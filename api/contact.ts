@@ -1,17 +1,13 @@
-import "dotenv/config";
-import express from "express";
-import { storage } from "../server/storage";
-import { insertContactMessageSchema } from "../shared/schema";
-import { z } from "zod";
-import { verifyGoogleToken } from "../server/auth/google";
-import { verifyRecaptchaToken } from "../server/middleware/recaptcha";
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { desc } from 'drizzle-orm';
+import * as schema from '../shared/schema';
+import { OAuth2Client } from 'google-auth-library';
+import { z } from 'zod';
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// CORS headers for Vercel
-app.use((req, res, next) => {
+// CORS helper
+function setCorsHeaders(res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -19,78 +15,144 @@ app.use((req, res, next) => {
         'Access-Control-Allow-Headers',
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
+}
 
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-    next();
-});
-
-// Handles contact form submissions with validation and notifications
-app.post("/api/contact", async (req, res) => {
+// Verify Google Token
+async function verifyGoogleToken(token: string) {
     try {
-        console.log("Contact API called with body:", JSON.stringify(req.body));
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            throw new Error("GOOGLE_CLIENT_ID not configured");
+        }
+
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        return payload;
+    } catch (error) {
+        console.error("Google token verification failed:", error);
+        return null;
+    }
+}
+
+// Verify reCAPTCHA
+async function verifyRecaptchaToken(token: string): Promise<boolean> {
+    try {
+        const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+        if (!secretKey) {
+            console.warn("RECAPTCHA_SECRET_KEY not set");
+            return false;
+        }
+
+        const response = await fetch(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`,
+            { method: "POST" }
+        );
+
+        const data = await response.json();
+        return data.success === true;
+    } catch (error) {
+        console.error("reCAPTCHA verification failed:", error);
+        return false;
+    }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    setCorsHeaders(res);
+
+    // Handle OPTIONS request
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // Only allow POST
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed' });
+    }
+
+    try {
+        console.log("Contact API called");
         const { googleToken, recaptchaToken, ...formData } = req.body;
 
         // Security Checks
         const isRecaptchaValid = await verifyRecaptchaToken(recaptchaToken);
         if (!isRecaptchaValid) {
+            console.error("Invalid reCAPTCHA");
             return res.status(400).json({ message: "Invalid Recaptcha." });
         }
 
         const googleUser = await verifyGoogleToken(googleToken);
-        console.log("Authenticated user:", googleUser?.email);
         if (!googleUser || !googleUser.email || !googleUser.sub) {
+            console.error("Invalid Google authentication");
             return res.status(401).json({ message: "Invalid Authentication." });
         }
 
+        console.log("Authenticated user:", googleUser.email);
+
+        // Initialize database
+        if (!process.env.DATABASE_URL) {
+            throw new Error("DATABASE_URL not configured");
+        }
+
+        const pool = new Pool({
+            connectionString: process.env.DATABASE_URL,
+        });
+
+        const db = drizzle(pool);
+
         // Rate Limiting
-        const recentMessages = await storage.getContactMessages();
+        const recentMessages = await db.select().from(schema.contactMessages);
         const userRecentMessages = recentMessages.filter(msg =>
             msg.googleUserId === googleUser.sub &&
             new Date().getTime() - new Date(msg.createdAt).getTime() < 24 * 60 * 60 * 1000
         );
 
         if (userRecentMessages.length >= 30) {
+            console.error("Daily limit reached for user:", googleUser.email);
+            await pool.end();
             return res.status(429).json({ message: "Daily limit reached." });
         }
 
         // Process and Store
-        const validatedData = insertContactMessageSchema.parse({
+        const validatedData = schema.insertContactMessageSchema.parse({
             ...formData,
             email: googleUser.email,
             googleUserId: googleUser.sub,
         });
 
         console.log("Saving message to database...");
-        const contactMessage = await storage.createContactMessage(validatedData);
+        const [contactMessage] = await db
+            .insert(schema.contactMessages)
+            .values(validatedData)
+            .returning();
+
         console.log("Message saved successfully with ID:", contactMessage.id);
 
-        /*
-        // Async Email - commented out as per user request
-        sendContactEmail({
-          fullName: `${contactMessage.firstName} ${contactMessage.lastName}`,
-          email: contactMessage.email,
-          phone: contactMessage.phoneNumber,
-          message: contactMessage.message,
-          date: contactMessage.createdAt
-        }).catch(err => console.error("Email failed:", err));
-        */
+        // Close database connection
+        await pool.end();
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Message sent successfully.",
             id: contactMessage.id
         });
 
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            res.status(400).json({ message: "Validation error", errors: error.errors });
-        } else {
-            console.error("Contact API error:", error);
-            res.status(500).json({ message: "Internal server error." });
-        }
-    }
-});
+        console.error("Contact API error:", error);
 
-export default app;
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "Validation error",
+                errors: error.errors
+            });
+        }
+
+        return res.status(500).json({
+            message: "Internal server error.",
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+}
