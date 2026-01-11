@@ -106,21 +106,12 @@
     "@types/ws": "^8.5.13",
     "@vercel/node": "^5.5.16",
     "@vitejs/plugin-react": "^4.3.2",
-<<<<<<< HEAD
-    "autoprefixer": "^10.4.23",
-    "cross-env": "^7.0.3",
-    "drizzle-kit": "^0.30.4",
-    "esbuild": "^0.25.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.19",
-=======
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "drizzle-kit": "^0.30.4",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
->>>>>>> 85ed0a692ed11d795cab2e5daf910c616e8a2b87
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
     "vite": "^5.4.19"
